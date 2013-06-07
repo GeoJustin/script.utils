@@ -1,0 +1,33 @@
+#			Variables for Post Processing 
+# NOTES:
+#	- Default values should never be changed in this document.
+#	- Notes should be preceded with a # symbol.
+# 	- Variables should be formated as [VARIABLE = Value].
+#	- Variables that are a Default value should be formated as
+#		[VARIABLE (Default) = Value]. Values listed as default are
+#		used by the restore_defaults method to reset all values.
+#
+# VARIABLES:
+#	Input file
+INPUT_FILE = STRING = A:/Desktop/RGI40/19_rgi31_AntarcticSubantarctic.shp
+INPUT_FILE (Default) = STRING = Required
+#
+#	Input folder
+INPUT_FOLDER = STRING = B:/Projects_RGI/RGI301
+INPUT_FOLDER (Default) = STRING = Required
+#
+#	Input DEM raster
+DEM = STRING = 
+DEM (Default) = STRING = Required
+#
+#	Output Folder for results
+OUTPUT_FOLDER = STRING = A:/Desktop/New folder
+OUTPUT_FOLDER (Default) = STRING = Required
+#
+#	Output file for results
+OUTPUT_FILE = STRING = A:/Desktop/RGI31/19_rgi31_AntarcticSubantarctic.shp
+OUTPUT_FILE (Default) = STRING = Required
+#
+#	Scratch Workspace
+WORKSPACE = STRING = A:/Desktop/RGI40/Workspace
+WORKSPACE (Default) = STRING = Required
