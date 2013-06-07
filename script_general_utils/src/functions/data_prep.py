@@ -67,13 +67,14 @@ def check_multipart (input_file, workspace):
 
 def check_area (input_file, workspace):
     """check the area values and make sure they are reasonable."""
+    from utilities.projection import cylindrical_equal_area
+    
     original_sum = 0
     final_sum = 0
     
     # Project to Equal Area
     reprojected = workspace + '\\Reproject.shp'
-    projection = os.path.dirname(os.path.abspath(__file__)) + '\\projection\\Cylindrical_Equal_Area_world.prj'
-    arcpy.Project_management(input_file, reprojected, projection)
+    arcpy.Project_management(input_file, reprojected, cylindrical_equal_area())
     
     area_shapefile = workspace + '\\Area_Shapefile.shp'
     arcpy.CalculateAreas_stats(reprojected, area_shapefile)

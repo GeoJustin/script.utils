@@ -1,6 +1,7 @@
 """****************************************************************************
  Name:         run_me
- Purpose:     
+ Purpose:      Used to run scripts that make use of the utils package. This 
+     script is not intended to be permanent.
  
 Created:         Jun 5, 2013
 Author:          Justin Rich (justin.rich@gi.alaska.edu)
