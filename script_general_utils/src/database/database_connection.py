@@ -70,10 +70,10 @@ class Database_Connection (object):
         to map values to fields. String fields need to include single quotes (' ') 
         around the value. This should be done in the value_map for example:
         name: "'" + value + "'" """
-        fields = [str(field) for field in value_map.keys()]
-        values = [str(value) for value in value_map.values()]
-         
-        self._cursor.execute("INSERT INTO %s (%s) VALUES (%s);" %(table, ','.join(fields), ','.join(values)))
+        fields = [str(field) for field in value_map.keys() if value_map[field] <> '']
+        values = [str(value) for value in value_map.values() if value <> '']
+        
+        self._cursor.execute("INSERT INTO %s (%s) VALUES (%s);" %(table, ', '.join(fields), ', '.join(values)))
         self._connection.commit()
         
         
@@ -84,7 +84,7 @@ class Database_Connection (object):
         result wanted"""
         set_values = ''
         for key, value in value_map.iteritems(): 
-            set_values += "%s = %s," %(key, value)
+            if value <> '': set_values += "%s = %s," %(key, value)
         self._cursor.execute("UPDATE %s SET %s WHERE %s;" %(table, set_values [0:-1], where))
         self._connection.commit()
         
@@ -97,7 +97,7 @@ class Database_Connection (object):
         join tuple is passed back. The join tuple should consist of 1 or more fields in the
         table. NOTE ('field') is not a tuple but a string in parentheses ('field',) is a tuple"""
         # Generate a where clause and select all rows with those values
-        where = [field + ' = ' + str(value_map[field]) for field in join_tuple]
+        where = [field + ' = ' + str(value_map[field]) for field in join_tuple if value_map[field] <> '']
         exists = self.get_selection(table, ' AND '.join(where))
          
         if   len(exists) == 0: # If no records are selected: INSERT row
