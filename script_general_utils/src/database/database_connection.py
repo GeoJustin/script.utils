@@ -20,7 +20,7 @@ License:     Although this application has been produced and tested
  be held liable for improper or incorrect use of the utility described and/
  or contained herein.
 ****************************************************************************"""
-import external_packages.psycopg2 as psycopg2 
+import psycopg2 
 
 class Database_Connection (object):
     
