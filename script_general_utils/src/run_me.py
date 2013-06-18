@@ -27,81 +27,75 @@ input_centerlines = r'A:\Desktop\Justin_Glacierbay_prelim\Data\BRANCHES.shp'
 boundaries = r'A:\Desktop\Justin_Glacierbay_prelim\Data\glacieroutlines.shp'
 workspace = r'A:\Desktop\Justin_Glacierbay_prelim\Scratch'
 dem = r'V:\DEM\NewDEM_V2\Alaska_albers_V2.tif'
-bin_size = 30
+bin_size = 100
 
 envi = utilities.environment.setup_arcgis (workspace, True, True)
 scratch = envi._workspace
+log = envi._log
 arcpy = envi._arcpy
 
 centerlines = workspace + '\\Centerlines.shp'
 arcpy.CopyFeatures_management(input_centerlines, centerlines)
-arcpy.AddField_management(input_centerlines, 'BIN_START', 'INTEGER')
-arcpy.AddField_management(input_centerlines, 'BIN_STEP', 'INTEGER')
-arcpy.AddField_management(input_centerlines, 'BIN_SLOPE', 'TEXT')
 
+fields = (('LINEID', 'STRING'), ('LENGTH', 'DOUBLE'), ('CUMMLENGTH', 'DOUBLE'), 
+          ('TOTLENGTH', 'DOUBLE'), ('ZEROLENGTH', 'DOUBLE'), ('SLOPE', 'DOUBLE'),
+          ('MAINLENGTH', 'DOUBLE'))
+polylinefeature = arcpy.CreateFeatureclass_management(workspace, 'New_Centerlines.shp', 'POLYLINE', '', '', '', centerlines)
+for field in fields: 
+    arcpy.AddField_management(polylinefeature, field[0], field[1])
+arcpy.DeleteField_management(polylinefeature, 'ID')
 
-
-
-def get_bin (glacier_id):
-    # Select Feature by GLIMS ID
-    feature_layer = 'Feature_Layer'
-    arcpy.MakeFeatureLayer_management(boundaries, feature_layer)
-    arcpy.SelectLayerByAttribute_management(feature_layer, 'NEW_SELECTION', """ "GLIMSID" = '%s' """ %(glacier_id) )
-            
-    # Subset DEM by Selected Feature
-    subset = dc.subset(feature_layer, dem, scratch)
-    
-    # Create Bins from Subset and Feature
-    binned_glacier = dc.bin_by_dem(feature_layer, subset, scratch, '', bin_size)
-    
-    # Delete Subset, Selection Layer, ...etc.
-    envi.delete_items([feature_layer, subset])
-    
-    return binned_glacier # Return Bins
-
-
-
-
-
-def calc_centerline_info (feature, bin_mask):
-    
-    print dc.get_bin_statistic(feature.shape, bin_mask, 'MIN'),
-    print dc.get_bin_statistic(feature.shape, bin_mask, 'MAX'),
-    print dc.get_bin_statistic(feature.shape, bin_mask, 'NUM'),
-    print bin_size
-    
-            
-    feature.BIN_START = dc.get_bin_statistic(feature.shape, binned_glacier, 'MIN')
-    feature.BIN_STEP = bin_size
-    
-    slope_bins = dc.calc_slope(feature.shape, bin_mask, bin_size)
-    print 'Length', slope_bins
-    feature.BIN_SLOPE = str(slope_bins)
-
-
-
+main_length = {}
+search_main = arcpy.SearchCursor(centerlines)
+for search in search_main:
+    if search.MAIN == 1:
+        main_length [search.GLIMSID] = search.LENGTH
+        
 glacier_id = ''
 binned_glacier = ''
 
-rows = arcpy.UpdateCursor(centerlines)
-for row in rows:
-    if row.GLIMSID == glacier_id:
-        print  'Same - ', row.GLIMSID
+search_rows = arcpy.SearchCursor(centerlines)
+for search_row in search_rows:
+    if search_row.GLIMSID <> glacier_id:
         
-        calc_centerline_info (row, binned_glacier)
+        print 'Extracting BINS from: ', search_row.GLIMSID
+        glacier_id = search_row.GLIMSID
+        
+            # Select Feature by GLIMS ID
+        feature_layer = 'Feature_Layer'
+        arcpy.MakeFeatureLayer_management(boundaries, feature_layer)
+        arcpy.SelectLayerByAttribute_management(feature_layer, 'NEW_SELECTION', """ "GLIMSID" = '%s' """ %(glacier_id) )
+                
+        # Subset DEM by Selected Feature
+        subset = dc.subset(feature_layer, dem, scratch)
+        
+        # Create Bins from Subset and Feature
+        binned_glacier = dc.bin_by_dem(feature_layer, subset, scratch, 'Binned_%s.shp'%(glacier_id), bin_size)
+        
+        # Delete Subset, Selection Layer, ...etc.
+        envi.delete_items([feature_layer, subset])
 
         
-        rows.updateRow(row)
-    else:
-        print row.GLIMSID
-        
-        try: arcpy.Delete_management(binned_glacier) # Try will fail on first (empty)
-        except: pass
-        
-        glacier_id = row.GLIMSID
-        binned_glacier = get_bin (glacier_id)
+    print  '\tRunning - ', search_row.GLIMSID
+    slope_bins = dc.calc_slope(search_row.shape, binned_glacier, bin_size)
     
-        calc_centerline_info (row, binned_glacier)
+    rows = arcpy.InsertCursor(polylinefeature)
+    for item in slope_bins:
+        row = rows.newRow()
+        row.setValue("Shape", item[0])
+        row.setValue("LINEID", search_row.GLIMSID)
+        row.setValue("LENGTH", item[1])
+        row.setValue("CUMMLENGTH", item[2])
+        row.setValue("TOTLENGTH", search_row.shape.length)
+        row.setValue("ZEROLENGTH", search_row.LENGTH)
+        row.setValue("MAINLENGTH", main_length[glacier_id])
+        row.setValue("SLOPE", item[3])
+        rows.insertRow(row)
+    del row, rows
     
-del row, rows
-envi.remove_workspace()
+del search_row, search_rows
+# envi.remove_workspace()
+
+
+
+

@@ -57,7 +57,7 @@ def get_bin_statistic (feature, bin_mask, statistic = 'MIN'):
         
     rows = arcpy.SearchCursor(selection)
     for row in rows: 
-        bins.append(row.BIN)
+        bins.append(row.BINS)
     del row, rows
     
     arcpy.Delete_management(selection)
@@ -70,43 +70,39 @@ def get_bin_statistic (feature, bin_mask, statistic = 'MIN'):
     
 
 
-def calc_slope (feature, bin_mask, bin_size = 50):
+def calc_slope (feature, bin_mask, bin_size = 50, sort_by = 'BINS'):
     """Calculate slope information along the center line by clipping segments of the 
     centerline to each bin. A bin mask is required and is calculated as a standard
     output of the 'get_hypsometry' function. Slope calculations assume centerline 
     segment runs the length of the bins so first and last values may be incorrect if
     if the line end before it reaches the end of a bin or starts within it."""
-    
-    bin_slopes = list()
-    
+    feature_list = list()
+
     selection = 'Selection'
     arcpy.MakeFeatureLayer_management(bin_mask, selection)
     arcpy.SelectLayerByLocation_management(selection, 'INTERSECT', feature) 
     
-    rows = arcpy.SearchCursor(selection)
+    cum_length = 0
+    rows = arcpy.SearchCursor(selection, '', '', '', sort_fields='%s A;' %(sort_by))
     for row in rows: 
         
         clipped_line = arcpy.Clip_analysis (feature, row.shape, 'in_memory\\clipped_line')
-        length = sum([length.Shape.length for length in arcpy.SearchCursor (clipped_line)])
-        
-        
-        
-        
-        # Values out of order
-        # Field is too small
-        
-        
-        bin_slopes.append(round(length, 3))
-        
+        for length in arcpy.SearchCursor (clipped_line):
+            
+            geometry = length.Shape
+            line_len = length.Shape.length
+            cum_length += line_len
+            slope = round(math.degrees(math.atan(bin_size / line_len)), 1)
+            
+            feature_list.append((geometry, line_len, cum_length, slope))
+
         arcpy.Delete_management(clipped_line)
     del row, rows
     
     arcpy.Delete_management(selection)
-    return bin_slopes
+    return feature_list
     
     
-    
-
 
 
 def bin_by_dem (feature, dem, scratch, name = None, bin_size = 50):
@@ -117,7 +113,7 @@ def bin_by_dem (feature, dem, scratch, name = None, bin_size = 50):
     if name == '' or name == None: name = os.path.join(scratch,'Binned.shp')
     else: name = os.path.join(scratch, name)
     
-    min_bin = 0
+    min_bin = 0 # Force default min_bin to sea level. DO NOT CHANGE. 
     max_bin = 8850
     
     reclassify_range = '' # re-map string
@@ -142,7 +138,7 @@ def bin_by_dem (feature, dem, scratch, name = None, bin_size = 50):
     
     # Format output table.
     to_delete = get_fields(name)
-    fields = [('BIN', 'INTEGER', "'!grid_code!'"), ('STEP_SIZE', 'INTEGER', bin_size)]
+    fields = [('BINS', 'INTEGER', "'!grid_code!'"), ('STEP_SIZE', 'INTEGER', bin_size)]
     for field in fields: 
         arcpy.AddField_management(name, field[0], field[1])
         arcpy.CalculateField_management(name, field[0], field[2], 'PYTHON')
