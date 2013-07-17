@@ -89,6 +89,16 @@ class setup_arcgis (object):
                 sys.exit('Spatial Analyst extension not available')
         
     
+    def checkout_3DAnalyst (self):
+        """Check out 3D Analyst extension if available."""
+        try: 
+            if self._arcpy.CheckExtension("3D") == "Available":
+                self._arcpy.CheckOutExtension("3D")
+            self._log.print_line('3D Analyst is available')
+        except:
+            self._log.print_line('3D Analyst extension not available')
+            sys.exit('3D Analyst extension not available')
+            
     
     def delete_items (self, items = []):
         """Function: Delete Items
