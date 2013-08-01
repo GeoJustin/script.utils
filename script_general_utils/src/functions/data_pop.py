@@ -91,13 +91,27 @@ def generate_RGIIDs (input_file, version, region):
     return str(id_count)
 
 
+def generate_centroid (input_file):
+    """Generate RGI Glacier Centroids. Requires the data to be in a geographic
+    projection and both a 'CENLON' and 'CENLAT' field."""
+    rows = arcpy.UpdateCursor(input_file)
+    for row in rows:
+        
+        #Find the Centroid Point
+        featureCenter = row.getValue(arcpy.Describe(input_file).shapeFieldName)
+        row.setValue('CENLON', featureCenter.centroid.X)
+        row.setValue('CENLAT', featureCenter.centroid.Y)
+        
+        rows.updateRow(row) # Update the new entry
+    del row, rows
+    return True
+
+
 def driver():
-    input_file = r'A:\Desktop\Test\01_rgi20_Alaska.shp'
-    workspace = r'A:\Desktop\Test'
-    
-    print 'STARTING GLIMS IDs'
-    generate_GLIMSIDs(input_file, workspace)
-    print 'FINISHED GLIMS IDs'
+    print 'STARTING'
+    input_file = r'A:\Desktop\RGI32\RGI32RAW\01_rgi32_Alaska.shp'
+    generate_centroid(input_file)
+    print 'FINISHED'
 
 if __name__ == '__main__':
     driver()

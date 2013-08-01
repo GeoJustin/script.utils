@@ -87,6 +87,7 @@ class setup_arcgis (object):
             except:
                 log.print_line('Spatial Analyst extension not available')
                 sys.exit('Spatial Analyst extension not available')
+        return True
         
     
     def checkout_3DAnalyst (self):
@@ -98,6 +99,7 @@ class setup_arcgis (object):
         except:
             self._log.print_line('3D Analyst extension not available')
             sys.exit('3D Analyst extension not available')
+        return True
             
     
     def delete_items (self, items = []):
