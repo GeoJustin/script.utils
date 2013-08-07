@@ -41,15 +41,14 @@ def generate_GLIMSIDs (input_file, workspace):
         Y = int(round(featureCenter.centroid.Y, 3) * 1000) # Get Y of Centroid
     
         # Format the E and N/S values appropriately. 
-        if X < 0: X = str((360000 + X) ) + "E"                  # Values 180-360
-        elif X >= 0 and X < 10000: X = "00" + str(X) + "E"   # Values 0 - 10
-        elif X >= 10000 and X < 100000: X = "0" + str(X) + "E"  # Values 10 - 100
+        if X < 0: X = str((360000 + X) ) + "E"      # Values 180-360
         else: X = str(X) + "E" # Values Greater then or equal to 100
+        # Account for values that are not long enough (i.e. 0.0025 would otherwise be 25)
+        X = (7 - len(X)) * '0' + X
 
-        if Y < 0 and Y > -10000: Y = "0" + str(-1 * Y) + "S"     # Values 0--10
-        elif Y <= -10000: Y = str(-1 * Y) + "S" #Values less then or equal to -10
-        elif Y >= 0 and Y < 10000: "0" + str(Y) + "N" #Values 0-10 including 0
-        else: Y = str(Y) + "N" # Values greater then or equal to 10
+        if Y < 0: Y = str(-1 * Y) + "S"     # Values to the south
+        else: Y = str(Y) + "N" # Values to the north
+        Y = (6 - len(Y)) * '0' + Y # Account for values that are not long enough 
        
         glims_values.append("G"+ str(X) + str(Y)) # Append value to list of values
     
@@ -91,12 +90,29 @@ def generate_RGIIDs (input_file, version, region):
     return str(id_count)
 
 
+
+
+def auto_generate_RGIIDs (input_file, version):
+    """Generate RGI ID's automatically. This function uses the 'Gennerate
+    RGIIDs' function and is made to simply parse out the region number."""
+    rows = arcpy.SearchCursor(input_file)
+    for row in rows:
+        region_number = str(row.getValue('O1REGION'))
+        break
+    del row, rows
+    
+    if len(region_number) == 1: 
+        region_number = '0' + region_number
+    
+    generate_RGIIDs (input_file, version, region_number)
+    return True
+
+
 def generate_centroid (input_file):
     """Generate RGI Glacier Centroids. Requires the data to be in a geographic
     projection and both a 'CENLON' and 'CENLAT' field."""
     rows = arcpy.UpdateCursor(input_file)
     for row in rows:
-        
         #Find the Centroid Point
         featureCenter = row.getValue(arcpy.Describe(input_file).shapeFieldName)
         row.setValue('CENLON', featureCenter.centroid.X)
