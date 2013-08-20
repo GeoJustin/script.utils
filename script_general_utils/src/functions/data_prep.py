@@ -160,3 +160,17 @@ def create_snap_raster (self, feature, scratch, output_file, cellsize = 10, spac
     
     arcpy.Delete_management(scratch + '\\RandomRaster') 
     return output_file
+
+
+
+
+def driver():
+    print 'STARTING'
+    input_file = r'A:\Desktop\RGI32\RGI32RAW\01_rgi32_Alaska.shp'
+    create_snap_raster(input_file)
+    print 'FINISHED'
+
+if __name__ == '__main__':
+    driver()
+
+

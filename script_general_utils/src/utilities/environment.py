@@ -29,7 +29,7 @@ class setup_arcgis (object):
     """Sets up a work environment for working with ArcGIS. Class is designed
     to reduce redundant entries across multiple scripts."""
 
-    def __init__(self, output_folder, arcinfo = False, spatial = False):
+    def __init__(self, output_folder = False, arcinfo = False, spatial = False):
         """Constructor:  Sets up an Arc GIS work environment"""
         self._output = output_folder    # Set Output Folder to Variable
         self._arcpy = object            # Set Arc Module to a Variable
@@ -48,12 +48,14 @@ class setup_arcgis (object):
         Imports the ArcPy module, sets up a workspace, starts a log file
         and then returns them"""
         # Start Log file and write it to the output folder
-        try: 
-            import output_file.output_file_log
-            log = output_file.output_file_log.Log(self._output)
-            self._log = log                    # Set log file to variable
-        except: sys.exit('Log file could not be written to the output folder.')
-        
+        if self._output == False: pass
+        else:
+            try: 
+                import output_file.output_file_log
+                log = output_file.output_file_log.Log(self._output)
+                self._log = log                    # Set log file to variable
+            except: sys.exit('Log file could not be written to the output folder.')
+            
         try: 
             import arcpy
             self._arcpy = arcpy
@@ -61,14 +63,16 @@ class setup_arcgis (object):
             log.print_line('Could NOT import arcpy module')
             sys.exit('WARNING - Could NOT import arcpy module')
         
-        try: # Set environment
-            scratch_space = self._output + '\\scratch'
-            os.makedirs(scratch_space) # Create Workspace
-            arcpy.env.workspace = scratch_space
-            self._workspace = scratch_space  # Set workspace Variable
-        except:
-            log.print_line('WARNING - Workspace folder already exists.')
-            sys.exit('WARNING - Workspace folder already exists.')
+        if self._output == False: pass
+        else:
+            try: # Set environment
+                scratch_space = self._output + '\\scratch'
+                os.makedirs(scratch_space) # Create Workspace
+                arcpy.env.workspace = scratch_space
+                self._workspace = scratch_space  # Set workspace Variable
+            except:
+                log.print_line('WARNING - Workspace folder already exists.')
+                sys.exit('WARNING - Workspace folder already exists.')
         
         if self._import_arcinfo == True: # If arc info is needed
             try:  
