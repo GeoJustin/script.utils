@@ -49,6 +49,8 @@ class Database_Connection (object):
     def execute (self, sql):
         """Execute a SQL queary on the current dataset """
         self._cursor.execute("""%s""" %(sql))
+        return self._cursor.fetchall() # Get data resulting from the SQL statement
+            
         
         
     def create_table (self, table, columns = '', pkey = 'pkey'):
