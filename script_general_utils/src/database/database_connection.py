@@ -49,7 +49,10 @@ class Database_Connection (object):
     def execute (self, sql):
         """Execute a SQL queary on the current dataset """
         self._cursor.execute("""%s""" %(sql))
-        return self._cursor.fetchall() # Get data resulting from the SQL statement
+        try:
+            return self._cursor.fetchall() # Get data resulting from the SQL statement
+        except:
+            return False # If no results returned
             
         
         
