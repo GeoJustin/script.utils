@@ -71,7 +71,6 @@ class setup_arcgis (object):
                 arcpy.env.workspace = scratch_space
                 self._workspace = scratch_space  # Set workspace Variable
             except:
-                log.print_line('WARNING - Workspace folder already exists.')
                 sys.exit('WARNING - Workspace folder already exists.')
         
         if self._import_arcinfo == True: # If arc info is needed
@@ -79,7 +78,6 @@ class setup_arcgis (object):
                 import arcinfo  # Get ArcInfo License if it's available
                 self._arcinfo = arcinfo
             except:
-                log.print_line('ArcInfo license NOT available')
                 sys.exit('ArcInfo license NOT available')
 
         if self._import_spatial == True: # If arc GIS spatial analysis is needed
@@ -87,9 +85,7 @@ class setup_arcgis (object):
                 arcpy.CheckOutExtension('Spatial')
                 from arcpy import sa
                 self._spatial = sa
-                log.print_line('Spatial Analyst is available')
             except:
-                log.print_line('Spatial Analyst extension not available')
                 sys.exit('Spatial Analyst extension not available')
         return True
         

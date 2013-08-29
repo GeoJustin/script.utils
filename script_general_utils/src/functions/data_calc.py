@@ -67,7 +67,6 @@ def get_bin_statistic (feature, bin_mask, statistic = 'MIN'):
     if statistic == 'NUM': return len(bins)
     if statistic == 'VAL': return bins
     else: pass
-    
 
 
 def calc_slope (feature, bin_mask, bin_size = 50, sort_by = 'BINS'):
