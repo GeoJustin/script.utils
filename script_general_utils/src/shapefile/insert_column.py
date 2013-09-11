@@ -95,15 +95,15 @@ class column ():
 # HARD CODE INPUTS HERE !
 def driver():
     # Required Fields
-    input_file = 'A:\Desktop\AntPeripheryInventory\AntPeripheryShapefiles.shp'
-    new_column_name = 'ENDDATE'
-    new_column_type = 'STRING'
-    position = 7 # Must be greater then 2 (1 = 'FID' & 2 = 'Shape')
+    input_file = r'A:\Desktop\PostgreSQL\Alaska_Modern.shp'
+    new_column_name = r'BGNDATE'
+    new_column_type = r'DATE'
+    position = 6 # Must be greater then 2 (1 = 'FID' & 2 = 'Shape')
     
     # Optional Fields
     new_column_precision = ''
     new_column_scale = ''
-    new_column_length = '8'
+    new_column_length = ''
     new_column_alias = ''
     new_column_nullable = ''
     new_column_required = ''

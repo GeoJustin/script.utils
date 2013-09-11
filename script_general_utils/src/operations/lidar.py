@@ -24,7 +24,7 @@ import glob
 import utilities.environment as environment
 import utilities.projection as projection
 
-def las_resample (self, input_folder, output_folder, snap, cell_size):
+def las_resample (input_folder, output_folder, snap, cell_size):
     """This function reads in las files from a folder and averages the per
     grid cell, based on an input snap raster, and outputs the cell center
     as a shapefile. This function was designed to work on an Alaska Albers
@@ -83,7 +83,7 @@ def las_resample (self, input_folder, output_folder, snap, cell_size):
 
 
 
-def las_shape_csv (self, input_folder, output_folder):
+def las_shape_csv (input_folder, output_folder):
     """This function reads in every shapefile in a given folder and writes
     them into a csv file in a format useful to database import."""
     envi = environment.setup_arcgis (output_folder, False, False)
@@ -99,7 +99,7 @@ def las_shape_csv (self, input_folder, output_folder):
     
         log.print_line("%s - %s - %s" %(glacier, year, day))
         
-        output_name = output_folder + '\\' + '%s_%s_%s.shp' %(glacier, year, day)
+        output_name = output_folder + '\\' + '%s_%s_%s.csv' %(glacier, year, day)
         output = open (output_name, 'w')
     
         rows = arcpy.SearchCursor(shapefile) # Load each point into the csv file
@@ -116,12 +116,13 @@ def las_shape_csv (self, input_folder, output_folder):
 
 
 def driver ():
-    input_folder = r'A:\Desktop\DatabaseImport\LiDAR_RunSpecial'
-    output_folder = r'A:\Desktop\DatabaseImport\Resampled_10'
+    input_folder = r'A:\Desktop\Profile\Resampled'
+    output_folder = r'A:\Desktop\Profile'
 
-    snap = r'A:\Desktop\DatabaseImport\SnapRaster\SnapRaster.img'
+    snap = r'A:\Project_LiDAR\SnapRaster\SnapRaster.img'
     cell_size = 10
     
-    las_resample (input_folder, output_folder, snap, cell_size)
+#     las_resample (input_folder, output_folder, snap, cell_size)
+    las_shape_csv (input_folder, output_folder)
 if __name__ == '__main__':
     driver ()        
