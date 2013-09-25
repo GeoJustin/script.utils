@@ -80,8 +80,84 @@ def las_resample (input_folder, output_folder, snap, cell_size):
        
         envi.delete_items([las_dataset, las_Layer, las_raster])
     envi.remove_workspace()
+    
+    
+def relabel_lasshp (input_folder, output_folder):
+    """ The function reads in the las shapefile generated in 
+    las_resample and reformats it with name, day and year in
+    the attribute table."""
+    envi = environment.setup_arcgis (output_folder, False, False)
+    workspace = envi._workspace
+    arcpy = envi._arcpy
+    
+    for shapefile in glob.glob (os.path.join (input_folder, '*.shp')):
+            
+        name = os.path.basename(shapefile)
+        glacier = name.split('_')[0]
+        year = name.split('_')[1]
+        day  = name.split('_')[2][0:3]
+        
+        print name, glacier, year, day
+    
+        try:
+            # Process: Add Fields
+            lidar = arcpy.CreateFeatureclass_management(workspace, name, 'POINT', '', '', '', projection.alaska_albers())
+             
+            fields = (('NAME', 'STRING'), ('GLIMSID', 'STRING'), ('YEAR', 'INTEGER'), ('DAY', 'INTEGER'), ('X', 'LONG'), ('Y', 'LONG'), ('Z', 'DOUBLE'))
+            for field in fields: arcpy.AddField_management(lidar, field[0], field[1])
+            arcpy.DeleteField_management(lidar, 'ID')
+        
+            rows = arcpy.InsertCursor(lidar, projection.alaska_albers())
+        
+            points = arcpy.SearchCursor(shapefile)
+            for point in points:
+                
+                row = rows.newRow()
+                row.setValue("Shape", point.Shape)
+                row.setValue("NAME", glacier)
+                # GLIMS ID GOES HERE - us 'lasshp_spatial' join
+                row.setValue("YEAR", year)
+                row.setValue("DAY", day)
+                row.setValue("X", point.X)
+                row.setValue("Y", point.Y)
+                row.setValue("Z", point.Z)
+                
+                rows.insertRow(row)
+                
+            del point, points, rows
+        except:
+            print '    Failed: ', glacier, year, day
 
 
+
+def lasshp_spatialjoin (input_folder, output_folder, glaciers):
+    """ This function reads in las shapefiles and spatially joins the
+    to glacier outlines. The purpose is to get the glims id"""
+    glacier_list = []
+
+    # Setup workspace
+    envi = environment.setup_arcgis (False, False, False)
+    arcpy = envi._arcpy
+                
+    for shapefile in glob.glob (os.path.join (input_folder, '*.shp')):
+            
+        name = os.path.basename(shapefile)
+        glacier = name.split('_')[0]
+        year = name.split('_')[1]
+        day  = name.split('_')[2][0:3]
+        
+        if name not in glacier_list:
+            print glacier, year, day
+    
+            output = output_folder + '\\' + name
+            arcpy.SpatialJoin_analysis(shapefile, glaciers, output)
+             
+            arcpy.CalculateField_management(output, 'GLIMSID', '!GLIMSID_1!', 'PYTHON')
+             
+            drop_list = ['Join_Count', 'TARGET_FID', 'RGIID', 'GLIMSID_1', 'RGIFLAG', 'BGNDATE', 'ENDDATE', 'CENLON', 'CENLAT', 'O1REGION', 'O2REGION', 'AREA', 'GLACTYPE', 'NAME_1', 'PARK', 'MIN', 'AVG', 'MAX']
+            for item in drop_list:
+                arcpy.DeleteField_management(output, item)
+                
 
 def las_shape_csv (input_folder, output_folder):
     """This function reads in every shapefile in a given folder and writes
@@ -116,13 +192,11 @@ def las_shape_csv (input_folder, output_folder):
 
 
 def driver ():
-    input_folder = r'A:\Desktop\Profile\Resampled'
-    output_folder = r'A:\Desktop\Profile'
-
-    snap = r'A:\Project_LiDAR\SnapRaster\SnapRaster.img'
-    cell_size = 10
+    input_folder = r'A:\Desktop\New folder\Reformate\scratch'
+    output_folder = r'A:\Desktop\New folder\Join'
+    glacier = r'A:\Desktop\PostgreSQL\Alaska_Modern.shp'
     
 #     las_resample (input_folder, output_folder, snap, cell_size)
-    las_shape_csv (input_folder, output_folder)
+    lasshp_spatialjoin (input_folder, output_folder, glacier)
 if __name__ == '__main__':
     driver ()        
