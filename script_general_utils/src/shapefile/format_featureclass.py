@@ -119,7 +119,8 @@ class FormatFeatureClass (object):
         # Map temporary fields to new fields and delete the temporary fields
         for key in mappings:
             arcpy.CalculateField_management (new_file, key, '!' + mappings[key] + '!', 'PYTHON')
-        arcpy.DeleteField_management (new_file, temp_fields) # Drop original fields
+            
+        arcpy.DeleteField_management (new_file, temp_fields) # Drop temporary fields
         
         
         

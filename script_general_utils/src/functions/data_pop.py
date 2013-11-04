@@ -35,10 +35,8 @@ def generate_GLIMSIDs (input_file, workspace):
     glims_values = [] # Hold the ID's to add to non WGS-84 Table
     rows = arcpy.UpdateCursor(output_wgs84)
     for row in rows:
-        #Find the Centroid Point
-        featureCenter = row.getValue(arcpy.Describe(output_wgs84).shapeFieldName)
-        X = int(round(featureCenter.centroid.X, 3) * 1000) # Get X of Centroid
-        Y = int(round(featureCenter.centroid.Y, 3) * 1000) # Get Y of Centroid
+        X = int(row.getValue('CENLON') * 1000) # Get X of Centroid
+        Y = int(row.getValue('CENLAT') * 1000) # Get Y of Centroid
     
         # Format the E and N/S values appropriately. 
         if X < 0: X = str((360000 + X) ) + "E"      # Values 180-360
@@ -125,8 +123,9 @@ def generate_centroid (input_file):
 
 def driver():
     print 'STARTING'
-    input_file = r'A:\Desktop\RGI32\RGI32RAW\01_rgi32_Alaska.shp'
-    generate_centroid(input_file)
+    input_file = r'A:\Desktop\eRGI\eRGI33.shp'
+    workspace = r'A:\Desktop\eRGI'
+    generate_GLIMSIDs(input_file, workspace)
     print 'FINISHED'
 
 if __name__ == '__main__':
