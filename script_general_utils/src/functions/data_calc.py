@@ -24,7 +24,7 @@ License:     Although this application has been produced and tested
 ****************************************************************************"""
 import os
 import math
-import arcpy                                                #@UnresolvedImport
+import arcpy 
 from arcpy import sa as spatial
 
 

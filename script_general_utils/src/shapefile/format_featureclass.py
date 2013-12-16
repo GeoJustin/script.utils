@@ -46,7 +46,7 @@ class FormatFeatureClass (object):
         to generate a newly formated shapefile. REQUIRES the arcpy module
         to run"""
         try: 
-            import arcpy
+            import arcpy  # @UnresolvedImport
             self._arcpy = arcpy
         except: return False
             

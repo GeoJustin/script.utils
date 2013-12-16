@@ -27,7 +27,7 @@ def database_spatialupdate (self, DBase, table, where, feature, xy_dict = {'X': 
     in the original table. dictionary 'feature' should hold the where selection 
     and dictionary x , y should hold the X and Y positions  """
     import utilities.projection as projection
-    import arcpy
+    import arcpy  # @UnresolvedImport
     
     selection = 'Selection'
     arcpy.MakeFeatureLayer_management (feature, selection)
