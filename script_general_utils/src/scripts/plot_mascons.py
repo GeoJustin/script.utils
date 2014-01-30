@@ -38,7 +38,7 @@ user = r'guest'
 word = readpassword(r'Z3Vlc3Q=')
 
 # Folder Paths: Local - local file folder
-local_folder = r'A:\Desktop\MasconPlots' # Local Folder
+local_folder = r'A:\Desktop\Test' # Local Folder
 
 # Plot Labels and Titles
 label = {'ylabel': 'cm w.e. (SUM)',

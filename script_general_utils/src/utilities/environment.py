@@ -51,13 +51,13 @@ class setup_arcgis (object):
         if self._output == False: pass
         else:
             try: 
-                import output_file.output_file_log
-                log = output_file.output_file_log.Log(self._output)
+                import output.output_file_log
+                log = output.output_file_log.Log(self._output)
                 self._log = log                    # Set log file to variable
             except: sys.exit('Log file could not be written to the output folder.')
             
         try: 
-            import arcpy
+            import arcpy  # @UnresolvedImport
             self._arcpy = arcpy
         except: 
             log.print_line('Could NOT import arcpy module')
@@ -75,7 +75,7 @@ class setup_arcgis (object):
         
         if self._import_arcinfo == True: # If arc info is needed
             try:  
-                import arcinfo  # Get ArcInfo License if it's available
+                import arcinfo  # Get ArcInfo License if it's available @UnresolvedImport
                 self._arcinfo = arcinfo
             except:
                 sys.exit('ArcInfo license NOT available')
@@ -83,7 +83,7 @@ class setup_arcgis (object):
         if self._import_spatial == True: # If arc GIS spatial analysis is needed
             try: # Check out Spatial Analyst extension if available.
                 arcpy.CheckOutExtension('Spatial')
-                from arcpy import sa
+                from arcpy import sa  # @UnresolvedImport
                 self._spatial = sa
             except:
                 sys.exit('Spatial Analyst extension not available')

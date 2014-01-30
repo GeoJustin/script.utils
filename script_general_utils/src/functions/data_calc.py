@@ -24,8 +24,8 @@ License:     Although this application has been produced and tested
 ****************************************************************************"""
 import os
 import math
-import arcpy 
-from arcpy import sa as spatial
+import arcpy  # @UnresolvedImport
+from arcpy import sa as spatial  # @UnresolvedImport
 
 
 def calc_length (feature, length_field = 'LENGTH'):
@@ -137,7 +137,7 @@ def bin_by_dem (feature, dem, scratch, name = None, bin_size = 50):
     
     # Format output table.
     to_delete = get_fields(name)
-    fields = [('BINS', 'INTEGER', "'!grid_code!'"), ('STEP_SIZE', 'INTEGER', bin_size)]
+    fields = [('BINS', 'INTEGER', "'!gridcode!'"), ('STEP_SIZE', 'INTEGER', bin_size)]
     for field in fields: 
         arcpy.AddField_management(name, field[0], field[1])
         arcpy.CalculateField_management(name, field[0], field[2], 'PYTHON')
