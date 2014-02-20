@@ -33,7 +33,7 @@ import numpy # Plot Statistics
 """------------------------------------------------------------------------- """
 """ Initialize variables and set switches open / closed"""
 
-num_days = 5 # number of days to plot (current - n)
+num_days = 30 # number of days to plot (current - n)
 
 # Database Connection Parameters
 host = r'thor.gi.alaska.edu'
