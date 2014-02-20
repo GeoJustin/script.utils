@@ -227,7 +227,7 @@ if process['radiation'] == True:
         if OUT_table_date.size <> 0: 
             # Add text values to figure 
             stats = get_statistics (OUT_table_value)
-            figure.text(0.5, 0.04, 'OUT: Average Radiation: %s    Minimum Radiation: %s    Maximum Temp: %s' % (stats['mean'], stats['min'], stats['max']), ha = 'center')
+            figure.text(0.5, 0.04, 'OUT: Average Radiation: %s    Minimum Radiation: %s    Maximum Radiation: %s' % (stats['mean'], stats['min'], stats['max']), ha = 'center')
       
             # Plot the data on the figure
             draw.plot (OUT_table_date, OUT_table_value, color="blue", label= 'Radiation Out') # Plot data
